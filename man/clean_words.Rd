@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean_words.R
 \name{clean_words}
 \alias{clean_words}
-\title{Title}
+\title{Prepare words for search.}
 \usage{
 clean_words(words)
 }
@@ -13,7 +13,7 @@ clean_words(words)
 A character vector of the same length.
 }
 \description{
-Title
+Prepare words for search.
 }
 \examples{
 clean_words(c("Type-1 diabetes "))

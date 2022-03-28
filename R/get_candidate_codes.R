@@ -1,23 +1,28 @@
 
-#' Get candidate codelist
+#' Generate candidate codelist for the OMOP CDM
 #'
-#' @param keywords Character vector
-#' @param domains  Character vector
-#' @param search.synonyms TRUE/ FALSE
-#' @param fuzzy.match TRUE/ FALSE
-#' @param fuzzy.match.max.distance numeric
-#' @param exclude  Character vector
-#' @param include.descendants TRUE/ FALSE
-#' @param include.ancestor TRUE/ FALSE
-#' @param concept Dataframe
-#' @param concept_synonym Dataframe
-#' @param concept_ancestor Dataframe
+#' @description
+#' This function generates a set of codes that can be concidered for creating a phenotype
+#' using the OMOP CDM.
+#'
+#' @param keywords Character vector of words to search for. Where more than one word is given (e.g. "knee osteoarthritis"), all words will be identified but can be in different positions (e.g. "osteoarthritis of knee") should be identified.
+#' @param domains  Character vector with one or more of the OMOP CDM domain (e.g. "Condition").
+#' @param search.synonyms Either TRUE or FALSE. If TRUE the code will also search via the concept synonym table.
+#' @param fuzzy.match Either TRUE or FALSE. If TRUE the fuzzy matches will be used, with approximate matches identified.
+#' @param fuzzy.match.max.distance The max.distance parmeter for fuzzy matching (see ??base::agrep for further details).
+#' @param exclude  Character vector of words to search for to identify concepts to exclude.
+#' @param include.descendants Either TRUE or FALSE. If TRUE descendant concepts of identified concepts will be included in the candidate codelist.
+#' @param include.ancestor Either TRUE or FALSE. If TRUE the direct ancestor concepts of identified concepts will be included in the candidate codelist.
+#' @param concept Dataframe with the OMOP CDM vocabulary concept table,
+#' @param concept_synonym Dataframe with the OMOP CDM vocabulary concept_synonym table.
+#' @param concept_ancestor Dataframe with the OMOP CDM vocabulary concept_ancestor table.
 #'
 #' @return Dataframe
 #' @importFrom rlang .data
 #' @export
 #'
 #' @examples
+#' # note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
 #' library(dplyr)
 #' library(Eunomia)
 #' library(stringr)

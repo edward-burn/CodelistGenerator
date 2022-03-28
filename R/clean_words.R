@@ -1,5 +1,5 @@
 
-#' Title
+#' Prepare words for search.
 #'
 #' @param words A character vector.
 #'

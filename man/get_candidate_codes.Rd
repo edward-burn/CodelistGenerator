@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_candidate_codes.R
 \name{get_candidate_codes}
 \alias{get_candidate_codes}
-\title{Get candidate codelist}
+\title{Generate candidate codelist for the OMOP CDM}
 \usage{
 get_candidate_codes(
   keywords,
@@ -19,35 +19,37 @@ get_candidate_codes(
 )
 }
 \arguments{
-\item{keywords}{Character vector}
+\item{keywords}{Character vector of words to search for. Where more than one word is given (e.g. "knee osteoarthritis"), all words will be identified but can be in different positions (e.g. "osteoarthritis of knee") should be identified.}
 
-\item{domains}{Character vector}
+\item{domains}{Character vector with one or more of the OMOP CDM domain (e.g. "Condition").}
 
-\item{search.synonyms}{TRUE/ FALSE}
+\item{search.synonyms}{Either TRUE or FALSE. If TRUE the code will also search via the concept synonym table.}
 
-\item{fuzzy.match}{TRUE/ FALSE}
+\item{fuzzy.match}{Either TRUE or FALSE. If TRUE the fuzzy matches will be used, with approximate matches identified.}
 
-\item{fuzzy.match.max.distance}{numeric}
+\item{fuzzy.match.max.distance}{The max.distance parmeter for fuzzy matching (see ??base::agrep for further details).}
 
-\item{exclude}{Character vector}
+\item{exclude}{Character vector of words to search for to identify concepts to exclude.}
 
-\item{include.descendants}{TRUE/ FALSE}
+\item{include.descendants}{Either TRUE or FALSE. If TRUE descendant concepts of identified concepts will be included in the candidate codelist.}
 
-\item{include.ancestor}{TRUE/ FALSE}
+\item{include.ancestor}{Either TRUE or FALSE. If TRUE the direct ancestor concepts of identified concepts will be included in the candidate codelist.}
 
-\item{concept}{Dataframe}
+\item{concept}{Dataframe with the OMOP CDM vocabulary concept table,}
 
-\item{concept_synonym}{Dataframe}
+\item{concept_synonym}{Dataframe with the OMOP CDM vocabulary concept_synonym table.}
 
-\item{concept_ancestor}{Dataframe}
+\item{concept_ancestor}{Dataframe with the OMOP CDM vocabulary concept_ancestor table.}
 }
 \value{
 Dataframe
 }
 \description{
-Get candidate codelist
+This function generates a set of codes that can be concidered for creating a phenotype
+using the OMOP CDM.
 }
 \examples{
+# note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
 library(dplyr)
 library(Eunomia)
 library(stringr)

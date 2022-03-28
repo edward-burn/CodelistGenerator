@@ -1,4 +1,4 @@
-#' Title
+#' Show mappings from source vocabularies to standard
 #'
 #' @param candidate_codelist Dataframe
 #' @param source_vocabularies Character vector
@@ -9,6 +9,7 @@
 #' @export
 #'
 #' @examples
+#' # note, Eunomia, which is used for the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
 #' library(dplyr)
 #' library(Eunomia)
 #' library(stringr)

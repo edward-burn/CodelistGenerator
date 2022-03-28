@@ -2,7 +2,7 @@
 % Please edit documentation in R/show_mappings.R
 \name{show_mappings}
 \alias{show_mappings}
-\title{Title}
+\title{Show mappings from source vocabularies to standard}
 \usage{
 show_mappings(
   candidate_codelist,
@@ -25,9 +25,10 @@ show_mappings(
 Dataframe
 }
 \description{
-Title
+Show mappings from source vocabularies to standard
 }
 \examples{
+# note, Eunomia, which is used for the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
 library(dplyr)
 library(Eunomia)
 library(stringr)
