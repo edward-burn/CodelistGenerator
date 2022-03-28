@@ -5,6 +5,8 @@ load_all()
 test()
 spell_check()
 
+usethis::use_vignette("Introduction_to_CodelistGenerator")
+
 # usethis::use_version()
 
 # use_r("clean_words")
@@ -13,7 +15,8 @@ spell_check()
 
 # usethis::use_package("checkmate")
 # usethis::use_package("dplyr")
-# usethis::use_package("tidyr")
+# usethis::use_package("dtplyr")
+# # usethis::use_package("tidyr")
 # usethis::use_package("stringr")
 
 # use_mit_license()

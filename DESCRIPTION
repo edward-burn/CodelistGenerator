@@ -15,10 +15,14 @@ Imports:
     tidyr (>= 1.2.0),
     stringr (>= 1.4.0),
     magrittr (>= 2.0.2),
-    rlang (>= 1.0.2), 
-    readr (>= 2.1.2),  
-    DatabaseConnector (>= 5.0.2),  
-    Eunomia (>= 1.0.1)  
+    rlang (>= 1.0.2),
+    readr (>= 2.1.2),
+    DatabaseConnector (>= 5.0.2),
+    Eunomia (>= 1.0.1),
+    dtplyr
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

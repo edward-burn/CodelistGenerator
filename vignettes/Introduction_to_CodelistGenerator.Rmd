@@ -1,0 +1,196 @@
+---
+title: "Introduction to CodelistGenerator"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction_to_CodelistGenerator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Getting the OMOP CDM vocabularies
+To use CodelistGenerator we need to first obtain the OMOP CDM vocabularies from https://athena.ohdsi.org. Once these are downloaded, you can load in the relevant files like so:
+
+```{r import vocabularies,  message=FALSE, warning=FALSE}
+library(readr)
+vocab.folder<-Sys.getenv("omop_cdm_vocab_path") # path to directory of unzipped files
+concept<-read_delim(paste0(vocab.folder,"/CONCEPT.csv"),
+     "\t", escape_double = FALSE, trim_ws = TRUE)
+concept_relationship<-read_delim(paste0(vocab.folder,"/CONCEPT_RELATIONSHIP.csv"),
+     "\t", escape_double = FALSE, trim_ws = TRUE) 
+concept_ancestor<-read_delim(paste0(vocab.folder,"/CONCEPT_ANCESTOR.csv"),
+     "\t", escape_double = FALSE, trim_ws = TRUE)
+concept_synonym<-read_delim(paste0(vocab.folder,"/CONCEPT_SYNONYM.csv"),
+     "\t", escape_double = FALSE, trim_ws = TRUE)
+```
+
+The structure of each of these tables is described in detail at: https://ohdsi.github.io/CommonDataModel/cdm53.html#Vocabulary_Tables 
+
+## Generating a candidate codelist
+
+For this example we are going to generate a candidate codelist for dementia. Moreover, we're only going to look for codes in the condition domain.
+
+```{r packages,  message=FALSE, warning=FALSE }
+library(CodelistGenerator)
+library(dplyr)
+library(DT)
+```
+
+First, let's do a simple search for a single keyword of "dementia" without any exclusions, without searching synonyms, and including descendents but not ancestors.
+```{r,  message=FALSE, warning=FALSE, results='hide'  }
+dementia_codes1<-get_candidate_codes(keywords="dementia",
+                    domains="Condition",
+                    search.synonyms = FALSE,
+                    fuzzy.match = FALSE,
+                    exclude = NULL,
+                    include.descendants = TRUE,
+                    include.ancestor = FALSE,
+                    concept=concept,
+                    concept_ancestor = concept_ancestor,
+                    concept_synonym = concept_synonym)
+```
+
+```{r,  message=FALSE, warning=FALSE }
+datatable(dementia_codes1,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+
+Do we pick up any more codes if we add alzheimer as a key word?
+```{r,  message=FALSE, warning=FALSE, results='hide'  }
+dementia_codes2<-get_candidate_codes(keywords=c("dementia","alzheimer"),
+                    domains="Condition",
+                    search.synonyms = FALSE,
+                    fuzzy.match = FALSE,
+                    exclude = NULL,
+                    include.descendants = TRUE,
+                    include.ancestor = FALSE,
+                    concept=concept,
+                    concept_ancestor = concept_ancestor,
+                    concept_synonym = concept_synonym) 
+```
+
+What extra codes do we pick up?
+```{r,  message=FALSE, warning=FALSE }
+new_codes_1_2<-bind_rows(dementia_codes1, dementia_codes2) %>% 
+  group_by(concept_id) %>% 
+  mutate(seq=length(concept_name)) %>%
+  filter(seq==1)
+
+datatable(new_codes_1_2,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+
+Now, we could search synonyms and see if we pick up any extra codes
+```{r,  message=FALSE, warning=FALSE, results='hide'  }
+dementia_codes3<-get_candidate_codes(keywords=c("dementia","alzheimer"),
+                    domains="Condition",
+                    search.synonyms = TRUE,
+                    fuzzy.match = FALSE,
+                    exclude = NULL,
+                    include.descendants = TRUE,
+                    include.ancestor = FALSE,
+                    concept=concept,
+                    concept_ancestor = concept_ancestor,
+                    concept_synonym = concept_synonym)
+```
+
+What extra codes do we pick up from searching synonyms?
+```{r,  message=FALSE, warning=FALSE }
+new_codes_2_3<-bind_rows(dementia_codes2, dementia_codes3) %>% 
+  group_by(concept_id) %>% 
+  mutate(seq=length(concept_name)) %>%
+  filter(seq==1)
+
+datatable(new_codes_2_3,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+Ok, now let' see what we get from also doing a fuzzy search
+```{r,  message=FALSE, warning=FALSE, results='hide'  }
+dementia_codes4<-get_candidate_codes(keywords=c("dementia","alzheimer"),
+                    domains="Condition",
+                    search.synonyms = TRUE,
+                    fuzzy.match = TRUE,
+                    exclude = NULL,
+                    include.descendants = TRUE,
+                    include.ancestor = FALSE,
+                    concept=concept,
+                    concept_ancestor = concept_ancestor,
+                    concept_synonym = concept_synonym)
+```
+
+What extra codes do we pick up?
+```{r,  message=FALSE, warning=FALSE }
+new_codes_3_4<-bind_rows(dementia_codes3, dementia_codes4) %>% 
+  group_by(concept_id) %>% 
+  mutate(seq=length(concept_name)) %>%
+  filter(seq==1)
+
+datatable(new_codes_3_4,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+And this is what the candidate codelist now looks like
+```{r,  message=FALSE, warning=FALSE }
+datatable(dementia_codes4,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+
+## Review mappings from source vocabularies
+Perhaps we want to see what ICD10CM codes map to our candidate codelist. We can get these by running
+```{r,  message=FALSE, warning=FALSE }
+icd_mappings<-show_mappings(candidate_codelist=dementia_codes4,
+source_vocabularies="ICD10CM",
+concept=concept,
+concept_relationship=concept_relationship)
+
+datatable(icd_mappings,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```
+
+```{r,  message=FALSE, warning=FALSE }
+read_mappings<-show_mappings(candidate_codelist=dementia_codes4,
+source_vocabularies="Read",
+concept=concept,
+concept_relationship=concept_relationship)
+
+datatable(read_mappings,
+          options = list(
+  searching = FALSE,
+  pageLength = 10,
+  lengthMenu = c(10, 20,50)
+))
+```

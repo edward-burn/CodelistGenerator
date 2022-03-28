@@ -64,6 +64,10 @@ checkmate::assertDataFrame(concept_ancestor, add = errorMessage)
 
 checkmate::reportAssertions(collection = errorMessage)
 
+concept<-dtplyr::lazy_dt(concept)
+concept_ancestor<-dtplyr::lazy_dt(concept_ancestor)
+concept_synonym<-dtplyr::lazy_dt(concept_synonym)
+
 # filter to only relevant data
 concept<-concept %>%
   dplyr::filter(.data$domain_id %in% domains) %>%
@@ -95,6 +99,9 @@ concept_synonym<-concept_synonym %>%
   dplyr::select(-"domain_id") %>%
   dplyr::select(-"standard_concept")
 
+concept<-as.data.frame(concept)
+concept_ancestor<-as.data.frame(concept_ancestor)
+concept_synonym<-as.data.frame(concept_synonym)
 
 
 # 1) codes to exclude
