@@ -14,26 +14,34 @@ knitr::opts_chunk$set(
 ```
 
 # CodelistGenerator
-
-<!-- badges: start -->
-<!-- badges: end -->
-
-The goal of CodelistGenerator is to ...
+The goal of CodelistGenerator is to create a candidate set of codes for generating a phenotype for the OMOP CDM.
 
 ## Installation
-
 You can install the development version of CodelistGenerator like so:
-
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("edward-burn/CodelistGenerator")
 ```
 
 ## Example
-
-This is a basic example which shows you how to solve a common problem:
+# Note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org.
 
 ```{r example}
 library(CodelistGenerator)
-## basic example code
+library(dplyr)
+library(Eunomia)
+library(stringr)
+library(readr)
+connection <- connect(getEunomiaConnectionDetails())
+concepts<-querySql(connection, "SELECT * FROM concept;")
+concept_ancestors<-querySql(connection, "SELECT * FROM concept_ancestor;")
+concept_synonyms<-querySql(connection, "SELECT * FROM concept_synonym;")
+disconnect(connection)
+names(concepts)<-str_to_lower(names(concepts))
+names(concept_ancestors)<-str_to_lower(names(concept_ancestors))
+names(concept_synonyms)<-str_to_lower(names(concept_synonyms))
+get_candidate_codes(keywords="asthma",
+                 concept=concepts,
+                    concept_ancestor = concept_ancestors,
+                    concept_synonym = concept_synonyms)
 ```
 
