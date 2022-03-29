@@ -71,37 +71,38 @@ concept<-concept %>%
   dplyr::filter(.data$domain_id %in% domains) %>%
   dplyr::filter(.data$standard_concept=="S")
 print(2)
-concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
-  dplyr::left_join(dtplyr::lazy_dt(concept   %>%
-               dplyr::select("concept_id", "domain_id", "standard_concept") %>%
-               dplyr::rename("ancestor_concept_id"="concept_id")),
-              by="ancestor_concept_id")  %>%
-   dplyr::as_tibble()%>%
-  dplyr::filter(.data$domain_id %in% domains)%>%
-  dplyr::filter(.data$standard_concept=="S")  %>%
-  dplyr::select(-"domain_id") %>%
-  dplyr::select(-"standard_concept")
+# concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
+#   dplyr::left_join(dtplyr::lazy_dt(concept   %>%
+#                dplyr::select("concept_id", "domain_id", "standard_concept") %>%
+#                dplyr::rename("ancestor_concept_id"="concept_id")),
+#               by="ancestor_concept_id")  %>%
+#    dplyr::as_tibble()
+# concept_ancestor<-concept_ancestor %>%
+#   dplyr::filter(.data$domain_id %in% domains)%>%
+#   dplyr::filter(.data$standard_concept=="S")  %>%
+#   dplyr::select(-"domain_id") %>%
+#   dplyr::select(-"standard_concept")
 print(3)
-concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
-  dplyr::left_join(dtplyr::lazy_dt(concept %>%
-              dplyr::select("concept_id", "domain_id", "standard_concept") %>%
-              dplyr::rename("descendant_concept_id"="concept_id")),
-              by="descendant_concept_id") %>%
-   dplyr::as_tibble()%>%
-  dplyr::filter(.data$domain_id %in% domains)%>%
-  dplyr::filter(.data$standard_concept=="S")  %>%
-  dplyr::select(-"domain_id") %>%
-  dplyr::select(-"standard_concept")
+# concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
+#   dplyr::left_join(dtplyr::lazy_dt(concept %>%
+#               dplyr::select("concept_id", "domain_id", "standard_concept") %>%
+#               dplyr::rename("descendant_concept_id"="concept_id")),
+#               by="descendant_concept_id") %>%
+#    dplyr::as_tibble()%>%
+#   dplyr::filter(.data$domain_id %in% domains)%>%
+#   dplyr::filter(.data$standard_concept=="S")  %>%
+#   dplyr::select(-"domain_id") %>%
+#   dplyr::select(-"standard_concept")
 print(4)
-concept_synonym<-dtplyr::lazy_dt(concept_synonym) %>%
-  dplyr::left_join(dtplyr::lazy_dt(concept %>%
-              dplyr::select("concept_id", "domain_id", "standard_concept")),
-              by="concept_id") %>%
-   dplyr::as_tibble()%>%
-  dplyr::filter(.data$domain_id %in% domains)%>%
-  dplyr::filter(.data$standard_concept=="S")  %>%
-  dplyr::select(-"domain_id") %>%
-  dplyr::select(-"standard_concept")
+# concept_synonym<-dtplyr::lazy_dt(concept_synonym) %>%
+#   dplyr::left_join(dtplyr::lazy_dt(concept %>%
+#               dplyr::select("concept_id", "domain_id", "standard_concept")),
+#               by="concept_id") %>%
+#    dplyr::as_tibble()%>%
+#   dplyr::filter(.data$domain_id %in% domains)%>%
+#   dplyr::filter(.data$standard_concept=="S")  %>%
+#   dplyr::select(-"domain_id") %>%
+#   dplyr::select(-"standard_concept")
 print(5)
 
 

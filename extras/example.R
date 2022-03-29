@@ -23,6 +23,14 @@ dementia_codes<-get_candidate_codes(keywords="dementia",
                     concept_ancestor = concept_ancestor,
                     concept_synonym = concept_synonym)
 
+profvis::profvis({
+  dementia_codes<-get_candidate_codes(keywords="dementia",
+                     domains="Condition",
+                    concept=concept,
+                    concept_ancestor = concept_ancestor,
+                    concept_synonym = concept_synonym)
+})
+
 show_mappings(dementia_codes,
               source_vocabularies="ICD10CM",
               concept = concept,
