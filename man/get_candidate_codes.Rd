@@ -13,9 +13,8 @@ get_candidate_codes(
   exclude = NULL,
   include.descendants = TRUE,
   include.ancestor = FALSE,
-  concept,
-  concept_synonym,
-  concept_ancestor
+  db,
+  vocabulary_schema
 )
 }
 \arguments{
@@ -35,11 +34,9 @@ get_candidate_codes(
 
 \item{include.ancestor}{Either TRUE or FALSE. If TRUE the direct ancestor concepts of identified concepts will be included in the candidate codelist.}
 
-\item{concept}{Dataframe with the OMOP CDM vocabulary concept table,}
+\item{db}{Database connection via DBI::dbConnect()}
 
-\item{concept_synonym}{Dataframe with the OMOP CDM vocabulary concept_synonym table.}
-
-\item{concept_ancestor}{Dataframe with the OMOP CDM vocabulary concept_ancestor table.}
+\item{vocabulary_schema}{Name of database schema with vocab tables}
 }
 \value{
 Dataframe
@@ -49,22 +46,20 @@ This function generates a set of codes that can be concidered for creating a phe
 using the OMOP CDM.
 }
 \examples{
-# note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
-library(dplyr)
-library(Eunomia)
-library(stringr)
-library(readr)
-connection <- connect(getEunomiaConnectionDetails())
-concepts<-querySql(connection, "SELECT * FROM concept;")
-concept_ancestors<-querySql(connection, "SELECT * FROM concept_ancestor;")
-concept_synonyms<-querySql(connection, "SELECT * FROM concept_synonym;")
-disconnect(connection)
-names(concepts)<-str_to_lower(names(concepts))
-names(concept_ancestors)<-str_to_lower(names(concept_ancestors))
-names(concept_synonyms)<-str_to_lower(names(concept_synonyms))
+untar(xzfile(system.file("sqlite", "cdm.tar.xz", package = "Eunomia"), open = "rb"),
+       exdir =  tempdir())
+db <- dbConnect(RSQLite::SQLite(), paste0(tempdir(),"\\\\cdm.sqlite"))
+vocabulary_database_schema<-"main"
 get_candidate_codes(keywords="asthma",
-                 concept=concepts,
-                    concept_ancestor = concept_ancestors,
-                    concept_synonym = concept_synonyms)
+                   db=db,
+                   vocabulary_schema = "main")
+get_candidate_codes(keywords="asthma",
+                   search.synonyms=TRUE,
+                             fuzzy.match=TRUE,
+                             exclude=NULL,
+                             include.descendants=TRUE,
+                             include.ancestor=FALSE,
+                   db=db,
+                   vocabulary_schema = "main")
 
 }
