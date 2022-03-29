@@ -36,7 +36,7 @@
 #'                              include.descendants=TRUE,
 #'                              include.ancestor=FALSE,
 #'                    db=db,
-#'                    vocabulary_schema = "main")
+#'                    vocabulary_database_schema = "main")
 #'
 get_candidate_codes<-function(keywords,
                               domains=c("Condition", "Drug" ,"Device", "Observation",
@@ -48,7 +48,7 @@ get_candidate_codes<-function(keywords,
                               include.descendants=TRUE,
                               include.ancestor=FALSE,
                               db,
-                              vocabulary_schema){
+                              vocabulary_database_schema){
 
 start<-Sys.time()
 
@@ -111,7 +111,7 @@ concept_synonym<-concept_synonym_db %>% collect()
 rm(concept_db,concept_ancestor_db,concept_ancestor_db1,concept_ancestor_db2,concept_synonym_db)
 
 # 1) codes to exclude
-# will anti_Join throughought to make sure these don't appear
+# will anti_join throughought to make sure these don't appear
 # exact matches only
 
 if(length(exclude)>0){
@@ -331,4 +331,4 @@ candidate.codes %>%
 }
 
 
-# .datatable.aware <- TRUE
+.datatable.aware <- TRUE
