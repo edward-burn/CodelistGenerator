@@ -22,23 +22,23 @@
 #' @export
 #'
 #' @examples
-#' # note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
-#' library(dplyr)
-#' library(Eunomia)
-#' library(stringr)
-#' library(readr)
-#' connection <- connect(getEunomiaConnectionDetails())
-#' concepts<-querySql(connection, "SELECT * FROM concept;")
-#' concept_ancestors<-querySql(connection, "SELECT * FROM concept_ancestor;")
-#' concept_synonyms<-querySql(connection, "SELECT * FROM concept_synonym;")
-#' disconnect(connection)
-#' names(concepts)<-str_to_lower(names(concepts))
-#' names(concept_ancestors)<-str_to_lower(names(concept_ancestors))
-#' names(concept_synonyms)<-str_to_lower(names(concept_synonyms))
-#' get_candidate_codes(keywords="asthma",
-#'                  concept=concepts,
-#'                     concept_ancestor = concept_ancestors,
-#'                     concept_synonym = concept_synonyms)
+# # note, Eunomia, used in the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
+# library(dplyr)
+# library(Eunomia)
+# library(stringr)
+# library(readr)
+# connection <- connect(getEunomiaConnectionDetails())
+# concepts<-querySql(connection, "SELECT * FROM concept;")
+# concept_ancestors<-querySql(connection, "SELECT * FROM concept_ancestor;")
+# concept_synonyms<-querySql(connection, "SELECT * FROM concept_synonym;")
+# disconnect(connection)
+# names(concepts)<-str_to_lower(names(concepts))
+# names(concept_ancestors)<-str_to_lower(names(concept_ancestors))
+# names(concept_synonyms)<-str_to_lower(names(concept_synonyms))
+# get_candidate_codes(keywords="asthma",
+#                  concept=concepts,
+#                     concept_ancestor = concept_ancestors,
+#                     concept_synonym = concept_synonyms)
 #'
 get_candidate_codes<-function(keywords,
                               domains=c("Condition", "Drug" ,"Device", "Observation",
@@ -64,44 +64,51 @@ checkmate::assertDataFrame(concept_ancestor, add = errorMessage)
 
 checkmate::reportAssertions(collection = errorMessage)
 
-concept<-dtplyr::lazy_dt(concept)
-concept_ancestor<-dtplyr::lazy_dt(concept_ancestor)
-concept_synonym<-dtplyr::lazy_dt(concept_synonym)
+# concept<-dtplyr::lazy_dt(concept)
+# concept_ancestor<-dtplyr::lazy_dt(concept_ancestor)
+# concept_synonym<-dtplyr::lazy_dt(concept_synonym)
 
 # filter to only relevant data
+print(1)
 concept<-concept %>%
   dplyr::filter(.data$domain_id %in% domains) %>%
   dplyr::filter(.data$standard_concept=="S")
-concept_ancestor<-concept_ancestor %>%
-  dplyr::left_join(concept %>%
-              dplyr::select("concept_id", "domain_id", "standard_concept") %>%
-              dplyr::rename("ancestor_concept_id"="concept_id"),
-              by="ancestor_concept_id") %>%
+print(2)
+concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
+  dplyr::left_join(dtplyr::lazy_dt(concept   %>%
+               dplyr::select("concept_id", "domain_id", "standard_concept") %>%
+               dplyr::rename("ancestor_concept_id"="concept_id")),
+              by="ancestor_concept_id")  %>%
+   dplyr::as_tibble()%>%
   dplyr::filter(.data$domain_id %in% domains)%>%
   dplyr::filter(.data$standard_concept=="S")  %>%
   dplyr::select(-"domain_id") %>%
   dplyr::select(-"standard_concept")
-concept_ancestor<-concept_ancestor %>%
-  dplyr::left_join(concept %>%
+print(3)
+concept_ancestor<-dtplyr::lazy_dt(concept_ancestor) %>%
+  dplyr::left_join(dtplyr::lazy_dt(concept %>%
               dplyr::select("concept_id", "domain_id", "standard_concept") %>%
-              dplyr::rename("descendant_concept_id"="concept_id"),
+              dplyr::rename("descendant_concept_id"="concept_id")),
               by="descendant_concept_id") %>%
+   dplyr::as_tibble(.data)%>%
   dplyr::filter(.data$domain_id %in% domains)%>%
   dplyr::filter(.data$standard_concept=="S")  %>%
   dplyr::select(-"domain_id") %>%
   dplyr::select(-"standard_concept")
-concept_synonym<-concept_synonym %>%
-  dplyr::left_join(concept %>%
-              dplyr::select("concept_id", "domain_id", "standard_concept"),
+print(4)
+concept_synonym<-dtplyr::lazy_dt(concept_synonym) %>%
+  dplyr::left_join(dtplyr::lazy_dt(concept %>%
+              dplyr::select("concept_id", "domain_id", "standard_concept")),
               by="concept_id") %>%
+   dplyr::as_tibble(.data)%>%
   dplyr::filter(.data$domain_id %in% domains)%>%
   dplyr::filter(.data$standard_concept=="S")  %>%
   dplyr::select(-"domain_id") %>%
   dplyr::select(-"standard_concept")
-
-concept<-as.data.frame(concept)
-concept_ancestor<-as.data.frame(concept_ancestor)
-concept_synonym<-as.data.frame(concept_synonym)
+print(5)
+# concept<-as.data.frame(concept)
+# concept_ancestor<-as.data.frame(concept_ancestor)
+# concept_synonym<-as.data.frame(concept_synonym)
 
 
 # 1) codes to exclude
@@ -248,7 +255,7 @@ batched.codes<-split(candidate.code.descendants$concept_id,
                                   n.batches))
 candidate.code.descendants.batched<-list()
 for(j in 1:length(batched.codes)){
-print(paste0("-- Getting batch ", j, " of ", length(batched.codes)))
+# print(paste0("-- Getting batch ", j, " of ", length(batched.codes)))
 using.codes.batch<-dplyr::tibble(concept_id=batched.codes[[j]])
 candidate.code.descendants.batched[[j]] <- using.codes.batch %>%
    dplyr::left_join(concept, by = "concept_id" )
@@ -319,46 +326,4 @@ candidate.codes %>%
 }
 
 
-
-
-
-# -----
-# add mapped source codes
-# if(!is.null(source.codes)){
-#
-# mapped.codes<-list()
-# for(i in 1:length(source.codes)){
-# mapped.codes[[i]]<- candidate.codes %>%
-#     dplyr::select(.data$concept_id) %>%
-#     dplyr::rename("concept_id_1"="concept_id") %>%
-#     dplyr::left_join(maps_from) %>%
-#     dplyr::select("concept_id_1","concept_id_2")%>%
-#     dplyr::rename("concept_id"="concept_id_2")  %>%
-#     dplyr::left_join(concept %>%
-#                 dplyr::select("concept_id", "concept_name", "vocabulary_id", "concept_code"))
-#
-# mapped.codes[[i]]<-mapped.codes[[i]] %>%
-#     dplyr::filter(.data$vocabulary_id %in% source.codes[i]) %>%
-#   dplyr::select(-"vocabulary_id")
-# names(mapped.codes[[i]])[2]<-paste0("source_concept_id")
-# names(mapped.codes[[i]])[3]<-paste0("source_concept_name")
-# names(mapped.codes[[i]])[4]<-paste0("source_concept_code")
-# mapped.codes[[i]]<-mapped.codes[[i]] %>%
-#   dplyr::rename("concept_id"="concept_id_1")
-# mapped.codes[[i]]<-mapped.codes[[i]] %>% dplyr::distinct()
-# if(nrow(mapped.codes[[i]])>0){
-# mapped.codes[[i]]$source_vocabulary<-source.codes[i]
-# mapped.codes[[i]]<-mapped.codes[[i]] %>% dplyr::select(-"source_concept_id")
-# }
-#
-#
-#
-# }
-# mapped.codes<-dplyr::bind_rows(mapped.codes) %>%
-#   dplyr::arrange(.data$concept_id)
-#
-# candidate.codes<-candidate.codes %>%
-#   dplyr::select("concept_id", "concept_name", "domain_id") %>%
-#   dplyr::inner_join(mapped.codes)
-#
-# }
+.datatable.aware <- TRUE

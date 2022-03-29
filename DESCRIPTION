@@ -11,15 +11,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports:
     checkmate (>= 2.0.0),
-    dplyr (>= 1.0.5),
+    dplyr (>= 1.0.0),
     tidyr (>= 1.2.0),
     stringr (>= 1.4.0),
-    magrittr (>= 2.0.2),
-    rlang (>= 1.0.2),
-    readr (>= 2.1.2),
-    DatabaseConnector (>= 5.0.2),
-    Eunomia (>= 1.0.1),
-    dtplyr
+    magrittr (>= 2.0.0),
+    rlang (>= 1.0.0),
+    readr (>= 2.1.0),
+    DatabaseConnector (>= 5.0.0),
+    Eunomia (>= 1.0.0),
+    dtplyr (>= 1.0.0)
 Suggests: 
     knitr,
     rmarkdown,
