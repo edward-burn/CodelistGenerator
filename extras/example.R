@@ -2,8 +2,8 @@ library(dplyr)
 library(Eunomia)
 library(stringr)
 library(readr)
-devtools::load_all()
-# library(CodelistGenerator)
+# devtools::load_all()
+library(CodelistGenerator)
 
 
 vocab.folder<-"E:/CdmVocab2" # directory of unzipped files
@@ -30,13 +30,13 @@ vocabulary_database_schema<-"main"
 get_candidate_codes(keywords="childhood asthma",
                      domains="Condition",
                     db=db,
-                    vocabulary_schema = "main")
+                    vocabulary_database_schema =  "main")
 
 profvis::profvis({
   dementia_codes<-get_candidate_codes(keywords="dementia",
                      domains="Condition",
                     db=db,
-                    vocabulary_schema = "main")
+                    vocabulary_database_schema = "main")
 })
 
 
