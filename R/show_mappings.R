@@ -53,33 +53,23 @@ concept_db<-tbl(db, sql(paste0("SELECT * FROM ",
 concept_relationship_db<-tbl(db, sql(paste0("SELECT * FROM ",
                                         vocabulary_database_schema,
                                         ".concept_relationship")))
-concept<-concept_db %>%
-  filter(concept_id %in% !!candidate_codelist$concept_id) %>%
-  collect()
-maps_from<-concept_relationship_db %>%
-  dplyr::filter(.data$relationship_id=="Mapped from") %>%
-  filter(concept_id_1 %in% !!candidate_codelist$concept_id) %>%
-  collect()
-
-mapped.codes<- candidate_codelist %>%
-    dplyr::select("concept_id", "concept_name") %>%
-    dplyr::rename("Standard concept name"="concept_name") %>%
-    dplyr::rename("concept_id_1"="concept_id") %>%
-    dplyr::left_join(maps_from, by = "concept_id_1") %>%
-    dplyr::select("concept_id_1","Standard concept name", "concept_id_2") %>%
-    dplyr::rename("concept_id"="concept_id_2")  %>%
-    dplyr::left_join(concept %>%
-                dplyr::select("concept_id", "concept_name", "vocabulary_id", "concept_code")) %>%
-    dplyr::filter(.data$vocabulary_id %in% source_vocabularies) %>%
-  dplyr::arrange(.data$concept_id_1) %>%
-  dplyr::distinct()
+mapped.codes<- concept_db %>%
+   dplyr::inner_join(concept_relationship_db %>%
+             dplyr::filter(.data$relationship_id=="Mapped from") %>%
+             dplyr::filter(concept_id_1 %in% !!candidate_codelist$concept_id) %>%
+             dplyr::select("concept_id_1", "concept_id_2") %>%
+             dplyr::rename("concept_id"="concept_id_2"),
+             by = c( "concept_id")) %>%
+   dplyr::filter(.data$vocabulary_id %in% source_vocabularies)  %>%
+   dplyr::distinct() %>%
+   dplyr::collect()
 
 mapped.codes<-mapped.codes %>%
+  dplyr::select(concept_id_1, concept_id, concept_name, concept_code) %>%
   dplyr::rename("Standed concept_id (mapped to)"="concept_id_1") %>%
   dplyr::rename("Source concept_id (mapped from)"="concept_id") %>%
   dplyr::rename("Source code"="concept_code") %>%
   dplyr::rename("Source name"="concept_name")
 
 mapped.codes
-
 }

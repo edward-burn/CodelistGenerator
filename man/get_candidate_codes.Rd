@@ -14,7 +14,7 @@ get_candidate_codes(
   include.descendants = TRUE,
   include.ancestor = FALSE,
   db,
-  vocabulary_schema
+  vocabulary_database_schema
 )
 }
 \arguments{
@@ -42,7 +42,7 @@ get_candidate_codes(
 Dataframe
 }
 \description{
-This function generates a set of codes that can be concidered for creating a phenotype
+This function generates a set of codes that can be considered for creating a phenotype
 using the OMOP CDM.
 }
 \examples{
@@ -60,6 +60,6 @@ get_candidate_codes(keywords="asthma",
                              include.descendants=TRUE,
                              include.ancestor=FALSE,
                    db=db,
-                   vocabulary_schema = "main")
+                   vocabulary_database_schema = "main")
 
 }

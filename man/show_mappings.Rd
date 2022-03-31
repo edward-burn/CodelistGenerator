@@ -8,8 +8,8 @@ show_mappings(
   candidate_codelist,
   source_vocabularies = c("ATC", "ICD10CM", "ICD10PCS", "ICD9CM", "ICD9Proc", "LOINC",
     "OPCS4", "Read", "RxNorm", "RxNorm Extension", "SNOMED"),
-  concept,
-  concept_relationship
+  db,
+  vocabulary_database_schema
 )
 }
 \arguments{
@@ -29,25 +29,22 @@ Show mappings from source vocabularies to standard
 }
 \examples{
 # note, Eunomia, which is used for the example below, does not include a full set of vocabularies. The full set can be downloaded from https://athena.ohdsi.org
-library(dplyr)
-library(Eunomia)
-library(stringr)
-library(readr)
-connection <- connect(getEunomiaConnectionDetails())
-concepts<-querySql(connection, "SELECT * FROM concept;")
-concept_relationships<-querySql(connection, "SELECT * FROM CONCEPT_RELATIONSHIP;")
-concept_ancestors<-querySql(connection, "SELECT * FROM concept_ancestor;")
-concept_synonyms<-querySql(connection, "SELECT * FROM concept_synonym;")
-disconnect(connection)
-names(concepts)<-str_to_lower(names(concepts))
-names(concept_relationships)<-str_to_lower(names(concept_relationships))
-names(concept_ancestors)<-str_to_lower(names(concept_ancestors))
-names(concept_synonyms)<-str_to_lower(names(concept_synonyms))
-asthma_codes<- get_candidate_codes(keywords="asthma",
-                 concept=concepts,
-                    concept_ancestor = concept_ancestors,
-                    concept_synonym = concept_synonyms)
+untar(xzfile(system.file("sqlite", "cdm.tar.xz", package = "Eunomia"), open = "rb"),
+       exdir =  tempdir())
+db <- dbConnect(RSQLite::SQLite(), paste0(tempdir(),"\\\\cdm.sqlite"))
+vocabulary_database_schema<-"main"
+get_candidate_codes(keywords="asthma",
+                   db=db,
+                   vocabulary_schema = "main")
+asthma_codes<-get_candidate_codes(keywords="asthma",
+                   search.synonyms=TRUE,
+                             fuzzy.match=TRUE,
+                             exclude=NULL,
+                             include.descendants=TRUE,
+                             include.ancestor=FALSE,
+                   db=db,
+                   vocabulary_database_schema = "main")
 show_mappings(candidate_codelist= asthma_codes,
-           concept = concepts,
-           concept_relationship =  concept_relationships)
+                   db=db,
+                   vocabulary_database_schema = "main")
 }

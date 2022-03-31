@@ -4,8 +4,10 @@ document()
 load_all()
 test()
 spell_check()
+check()
 
-usethis::use_vignette("Introduction_to_CodelistGenerator")
+
+# usethis::use_vignette("Introduction_to_CodelistGenerator")
 
 # usethis::use_version()
 
