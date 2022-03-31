@@ -54,7 +54,7 @@ concept_relationship_db<-tbl(db, sql(paste0("SELECT * FROM ",
                                         vocabulary_database_schema,
                                         ".concept_relationship")))
 concept<-concept_db %>%
-  # filter(concept_id %in% !!candidate_codelist$concept_id) %>%
+  filter(concept_id %in% !!candidate_codelist$concept_id) %>%
   collect()
 maps_from<-concept_relationship_db %>%
   dplyr::filter(.data$relationship_id=="Mapped from") %>%
