@@ -38,7 +38,7 @@ show_mappings<-function(candidate_codelist,
                               db,
                               vocabulary_database_schema){
 
- errorMessage <- checkmate::makeAssertCollection()
+errorMessage <- checkmate::makeAssertCollection()
 
 checkmate::assertVector(source_vocabularies, add = errorMessage)
 checkmate::assertDataFrame(candidate_codelist, add = errorMessage)

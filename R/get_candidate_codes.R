@@ -212,7 +212,7 @@ synonyms<-dtplyr::lazy_dt(concept_synonym) %>%
   dplyr::distinct() %>%
   dplyr::pull()
 # drop any long synonyms (more than 6 words) - add a lot of run time while being highly unlikely to have a match
-synonyms<-synonyms[str_count(synonyms, "\\S+")<=6]
+synonyms<-synonyms[stringr::str_count(synonyms, "\\S+")<=6]
 synonyms<-unique(clean_words(synonyms))
 
 working.concepts<-concept %>% # start with all

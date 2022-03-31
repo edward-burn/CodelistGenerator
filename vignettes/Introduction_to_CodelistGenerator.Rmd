@@ -19,6 +19,9 @@ To use CodelistGenerator we need to first obtain the OMOP CDM vocabularies from 
 
 ```{r import vocabularies,  message=FALSE, warning=FALSE}
 library(readr)
+library(DBI)
+library(RSQLite)
+library(here)
 vocab.folder<-Sys.getenv("omop_cdm_vocab_path") # path to directory of unzipped files
 concept<-read_delim(paste0(vocab.folder,"/CONCEPT.csv"),
      "\t", escape_double = FALSE, trim_ws = TRUE)
@@ -28,6 +31,21 @@ concept_ancestor<-read_delim(paste0(vocab.folder,"/CONCEPT_ANCESTOR.csv"),
      "\t", escape_double = FALSE, trim_ws = TRUE)
 concept_synonym<-read_delim(paste0(vocab.folder,"/CONCEPT_SYNONYM.csv"),
      "\t", escape_double = FALSE, trim_ws = TRUE)
+if(file.exists(here("vocab_cdm.sqlite"))==TRUE){
+  # delete if exists
+  unlink(here("vocab_cdm.sqlite")) 
+}
+
+
+db <- dbConnect(RSQLite::SQLite(), here("vocab_cdm.sqlite"))
+dbWriteTable(db, "concept", concept)
+dbWriteTable(db, "concept_relationship", concept_relationship)
+dbWriteTable(db, "concept_ancestor", concept_ancestor)
+dbWriteTable(db, "concept_synonym", concept_synonym)
+dbSendQuery(db, "CREATE UNIQUE INDEX idx_concept ON concept (concept_id);")
+dbSendQuery(db, "CREATE UNIQUE INDEX idx_concept_ancestor ON concept_ancestor (ancestor_concept_id,descendant_concept_id );")
+rm(concept,concept_relationship, concept_ancestor, concept_synonym)
+vocabulary_database_schema<-"main"
 ```
 
 The structure of each of these tables is described in detail at: https://ohdsi.github.io/CommonDataModel/cdm53.html#Vocabulary_Tables 
@@ -39,6 +57,7 @@ For this example we are going to generate a candidate codelist for dementia. Mor
 ```{r packages,  message=FALSE, warning=FALSE }
 library(CodelistGenerator)
 library(dplyr)
+library(stringr)
 library(DT)
 ```
 
@@ -51,9 +70,8 @@ dementia_codes1<-get_candidate_codes(keywords="dementia",
                     exclude = NULL,
                     include.descendants = TRUE,
                     include.ancestor = FALSE,
-                    concept=concept,
-                    concept_ancestor = concept_ancestor,
-                    concept_synonym = concept_synonym)
+                    db=db,
+                    vocabulary_database_schema =  vocabulary_database_schema)
 ```
 
 ```{r,  message=FALSE, warning=FALSE }
@@ -75,9 +93,8 @@ dementia_codes2<-get_candidate_codes(keywords=c("dementia","alzheimer"),
                     exclude = NULL,
                     include.descendants = TRUE,
                     include.ancestor = FALSE,
-                    concept=concept,
-                    concept_ancestor = concept_ancestor,
-                    concept_synonym = concept_synonym) 
+                    db=db,
+                    vocabulary_database_schema =  vocabulary_database_schema)
 ```
 
 What extra codes do we pick up?
@@ -105,9 +122,8 @@ dementia_codes3<-get_candidate_codes(keywords=c("dementia","alzheimer"),
                     exclude = NULL,
                     include.descendants = TRUE,
                     include.ancestor = FALSE,
-                    concept=concept,
-                    concept_ancestor = concept_ancestor,
-                    concept_synonym = concept_synonym)
+                    db=db,
+                    vocabulary_database_schema =  vocabulary_database_schema)
 ```
 
 What extra codes do we pick up from searching synonyms?
@@ -134,9 +150,8 @@ dementia_codes4<-get_candidate_codes(keywords=c("dementia","alzheimer"),
                     exclude = NULL,
                     include.descendants = TRUE,
                     include.ancestor = FALSE,
-                    concept=concept,
-                    concept_ancestor = concept_ancestor,
-                    concept_synonym = concept_synonym)
+                    db=db,
+                    vocabulary_database_schema =  vocabulary_database_schema)
 ```
 
 What extra codes do we pick up?
@@ -170,8 +185,8 @@ Perhaps we want to see what ICD10CM codes map to our candidate codelist. We can 
 ```{r,  message=FALSE, warning=FALSE }
 icd_mappings<-show_mappings(candidate_codelist=dementia_codes4,
 source_vocabularies="ICD10CM",
-concept=concept,
-concept_relationship=concept_relationship)
+                    db=db,
+                    vocabulary_database_schema =  vocabulary_database_schema)
 
 datatable(icd_mappings,
           options = list(
